@@ -1,0 +1,99 @@
+@startuml
+title <size:24>Контейнерная диаграмма маркетплейса</size>
+
+set separator none
+left to right direction
+skinparam ranksep 60
+skinparam nodesep 30
+hide stereotype
+
+<style>
+  root {
+    BackgroundColor: #ffffff;
+    FontColor: #444444;
+  }
+  // Element,Container
+  .Element-RWxlbWVudCxDb250YWluZXI= {
+    BackgroundColor: #ffffff;
+    LineColor: #444444;
+    LineStyle: 0;
+    LineThickness: 2;
+    RoundCorner: 20;
+    FontColor: #444444;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Person
+  .Element-RWxlbWVudCxQZXJzb24= {
+    BackgroundColor: #ffffff;
+    LineColor: #444444;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #444444;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Relationship
+  .Relationship-UmVsYXRpb25zaGlw {
+    LineThickness: 2;
+    LineStyle: 10-10;
+    LineColor: #444444;
+    FontColor: #444444;
+    FontSize: 24;
+  }
+  // Маркетплейс
+  .Boundary-0JzQsNGA0LrQtdGC0L/Qu9C10LnRgQ== {
+    BackgroundColor: #ffffff;
+    LineColor: #444444;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #444444;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+  }
+</style>
+
+person "==Покупатель\n<size:16>[Person]</size>\n\nСмотрит товары и оформляет заказы" <<Element-RWxlbWVudCxQZXJzb24=>> as Покупатель
+person "==Продавец\n<size:16>[Person]</size>\n\nУправляет каталогом и выполняет заказы" <<Element-RWxlbWVudCxQZXJzb24=>> as Продавец
+person "==Поддержка/Модерация\n<size:16>[Person]</size>\n\nРешает спорные ситуации и модерирует контент" <<Element-RWxlbWVudCxQZXJzb24=>> as ПоддержкаМодерация
+
+rectangle "Маркетплейс\n<size:16>[Software System]</size>" <<Boundary-0JzQsNGA0LrQtdGC0L/Qu9C10LnRgQ==>> {
+  rectangle "==Сервис заказов\n<size:16>[Container: Service]</size>\n\nОформление заказа и жизненный цикл статусов" <<Element-RWxlbWVudCxDb250YWluZXI=>> as Маркетплейс.Сервисзаказов
+  rectangle "==Сервис платежей\n<size:16>[Container: Service]</size>\n\nРасчёт, учёт платежей, проводки (ledger)" <<Element-RWxlbWVudCxDb250YWluZXI=>> as Маркетплейс.Сервисплатежей
+  rectangle "==Сервис уведомлений\n<size:16>[Container: Service]</size>\n\nEmail/SMS/push о статусах и событиях" <<Element-RWxlbWVudCxDb250YWluZXI=>> as Маркетплейс.Сервисуведомлений
+  rectangle "==Шина событий\n<size:16>[Container: Kafka/RabbitMQ]</size>\n\nАсинхронное взаимодействие сервисов" <<Element-RWxlbWVudCxDb250YWluZXI=>> as Маркетплейс.Шинасобытий
+  rectangle "==БД пользователей\n<size:16>[Container: PostgreSQL]</size>\n\nДанные пользователей (владение User Service)" <<Element-RWxlbWVudCxDb250YWluZXI=>> as Маркетплейс.БДпользователей
+  rectangle "==БД каталога\n<size:16>[Container: PostgreSQL]</size>\n\nДанные каталога (владение Catalog Service)" <<Element-RWxlbWVudCxDb250YWluZXI=>> as Маркетплейс.БДкаталога
+  rectangle "==БД заказов\n<size:16>[Container: PostgreSQL]</size>\n\nДанные заказов (владение Order Service)" <<Element-RWxlbWVudCxDb250YWluZXI=>> as Маркетплейс.БДзаказов
+  rectangle "==БД платежей\n<size:16>[Container: PostgreSQL]</size>\n\nДанные платежей и учёта (владение Payment Service)" <<Element-RWxlbWVudCxDb250YWluZXI=>> as Маркетплейс.БДплатежей
+  rectangle "==Веб/Мобайл фронтенд\n<size:16>[Container: Web/Mobile]</size>\n\nИнтерфейс для покупателей и продавцов" <<Element-RWxlbWVudCxDb250YWluZXI=>> as Маркетплейс.ВебМобайлфронтенд
+  rectangle "==API Gateway / BFF\n<size:16>[Container: Nginx/Envoy/BFF]</size>\n\nЕдиная точка входа: маршрутизация, сессии, базовые проверки" <<Element-RWxlbWVudCxDb250YWluZXI=>> as Маркетплейс.APIGatewayBFF
+  rectangle "==Сервис пользователей\n<size:16>[Container: Service]</size>\n\nПользователи, роли, профиль продавца" <<Element-RWxlbWVudCxDb250YWluZXI=>> as Маркетплейс.Сервиспользователей
+  rectangle "==Сервис каталога\n<size:16>[Container: Service]</size>\n\nТовары, категории, атрибуты, управление каталогом" <<Element-RWxlbWVudCxDb250YWluZXI=>> as Маркетплейс.Сервискаталога
+  rectangle "==Сервис рекомендаций\n<size:16>[Container: Service]</size>\n\nПерсонализированная лента товаров" <<Element-RWxlbWVudCxDb250YWluZXI=>> as Маркетплейс.Сервисрекомендаций
+}
+
+Покупатель --> Маркетплейс.ВебМобайлфронтенд <<Relationship-UmVsYXRpb25zaGlw>> : "Пользуется"
+Продавец --> Маркетплейс.ВебМобайлфронтенд <<Relationship-UmVsYXRpb25zaGlw>> : "Пользуется"
+ПоддержкаМодерация --> Маркетплейс.ВебМобайлфронтенд <<Relationship-UmVsYXRpb25zaGlw>> : "Пользуется"
+Маркетплейс.ВебМобайлфронтенд --> Маркетплейс.APIGatewayBFF <<Relationship-UmVsYXRpb25zaGlw>> : "HTTPS"
+Маркетплейс.APIGatewayBFF --> Маркетплейс.Сервиспользователей <<Relationship-UmVsYXRpb25zaGlw>> : "REST/gRPC (sync)"
+Маркетплейс.APIGatewayBFF --> Маркетплейс.Сервискаталога <<Relationship-UmVsYXRpb25zaGlw>> : "REST/gRPC (sync)"
+Маркетплейс.APIGatewayBFF --> Маркетплейс.Сервисрекомендаций <<Relationship-UmVsYXRpb25zaGlw>> : "REST/gRPC (sync)"
+Маркетплейс.APIGatewayBFF --> Маркетплейс.Сервисзаказов <<Relationship-UmVsYXRpb25zaGlw>> : "REST/gRPC (sync)"
+Маркетплейс.Сервиспользователей --> Маркетплейс.БДпользователей <<Relationship-UmVsYXRpb25zaGlw>> : "Чтение/запись"
+Маркетплейс.Сервискаталога --> Маркетплейс.БДкаталога <<Relationship-UmVsYXRpb25zaGlw>> : "Чтение/запись"
+Маркетплейс.Сервисзаказов --> Маркетплейс.БДзаказов <<Relationship-UmVsYXRpb25zaGlw>> : "Чтение/запись"
+Маркетплейс.Сервисплатежей --> Маркетплейс.БДплатежей <<Relationship-UmVsYXRpb25zaGlw>> : "Чтение/запись"
+Маркетплейс.Сервисзаказов --> Маркетплейс.Сервисплатежей <<Relationship-UmVsYXRpb25zaGlw>> : "Инициация оплаты (sync)"
+Маркетплейс.Сервисзаказов --> Маркетплейс.Шинасобытий <<Relationship-UmVsYXRpb25zaGlw>> : "Публикует OrderCreated/OrderStatusChanged (async)"
+Маркетплейс.Сервисплатежей --> Маркетплейс.Шинасобытий <<Relationship-UmVsYXRpb25zaGlw>> : "Публикует PaymentAuthorized/PaymentFailed (async)"
+Маркетплейс.Сервисуведомлений --> Маркетплейс.Шинасобытий <<Relationship-UmVsYXRpb25zaGlw>> : "Подписывается и отправляет уведомления (async)"
+Маркетплейс.Сервисрекомендаций --> Маркетплейс.Шинасобытий <<Relationship-UmVsYXRpb25zaGlw>> : "Подписывается на события поведения/заказов (async)"
+
+@enduml
